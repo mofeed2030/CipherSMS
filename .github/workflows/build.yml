@@ -14,10 +14,11 @@ jobs:
       - name: Build with Gradle
         run: |
           cd CipherSMS
-          # هذا السطر سيقوم بتحميل Gradle بشكل صحيح وتجاوز مشكلة الـ Jar
-          gradle wrapper
+          # تثبيت إصدار 8.5 بدلاً من 9 لتجنب التعارضات
+          gradle wrapper --gradle-version 8.5
           chmod +x gradlew
-          ./gradlew assembleDebug
+          # تنظيف البناء القديم والبدء من جديد
+          ./gradlew clean assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
