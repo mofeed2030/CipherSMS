@@ -9,13 +9,10 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Build APK
-        run: |
-          cd CipherSMS
-          gradle wrapper
-          chmod +x gradlew
-          ./gradlew assembleDebug
+      - uses: android-actions/setup-android@v2
+      - name: Build
+        run: cd CipherSMS && chmod +x gradlew && ./gradlew assembleDebug
       - uses: actions/upload-artifact@v3
         with:
-          name: app-debug
-          path: CipherSMS/app/build/outputs/apk/debug/app-debug.apk
+          name: CipherSMS-APK
+          path: CipherSMS/app/build/outputs/apk/debug/
