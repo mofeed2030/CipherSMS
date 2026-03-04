@@ -11,14 +11,19 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build with Gradle
+      - name: Force Gradle 8.0
         run: |
           cd CipherSMS
-          # تثبيت إصدار 8.5 بدلاً من 9 لتجنب التعارضات
-          gradle wrapper --gradle-version 8.5
+          # حذف أي إعدادات قديمة للـ Wrapper
+          rm -rf gradle/wrapper/gradle-wrapper.properties
+          # إجبار النظام على استخدام نسخة 8.0 المتوافقة
+          gradle wrapper --gradle-version 8.0 --distribution-type bin
           chmod +x gradlew
-          # تنظيف البناء القديم والبدء من جديد
-          ./gradlew clean assembleDebug
+
+      - name: Build APK
+        run: |
+          cd CipherSMS
+          ./gradlew assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
