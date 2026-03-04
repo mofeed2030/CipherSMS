@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">سايفر SMS</string>
+    <string name="app_description">رسائل مشفرة عسكرية</string>
+    <string name="new_message">رسالة جديدة</string>
+    <string name="search_hint">بحث في الرسائل...</string>
+    <string name="compose_hint">اكتب رسالة...</string>
+    <string name="to_hint">رقم الهاتف أو الاسم...</string>
+    <string name="settings">الإعدادات</string>
+    <string name="vault">الخزينة السرية</string>
+    <string name="archive">أرشفة</string>
+    <string name="delete">حذف</string>
+    <string name="pin">تثبيت</string>
+    <string name="unpin">إلغاء التثبيت</string>
+    <string name="lock_conversation">قفل المحادثة</string>
+    <string name="move_to_vault">نقل إلى الخزينة</string>
+    <string name="send">إرسال</string>
+    <string name="cancel">إلغاء</string>
+    <string name="biometric_title">مصادقة سايفر SMS</string>
+    <string name="biometric_subtitle">المصادقة للوصول إلى رسائلك</string>
+    <string name="biometric_negative">استخدام PIN</string>
+</resources>
