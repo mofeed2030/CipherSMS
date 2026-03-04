@@ -11,19 +11,17 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Force Gradle 8.0
-        run: |
-          cd CipherSMS
-          # حذف أي إعدادات قديمة للـ Wrapper
-          rm -rf gradle/wrapper/gradle-wrapper.properties
-          # إجبار النظام على استخدام نسخة 8.0 المتوافقة
-          gradle wrapper --gradle-version 8.0 --distribution-type bin
-          chmod +x gradlew
+      # هذه الخطوة هي المفتاح: ستجبر السيرفر على استخدام 8.5 قبل أي شيء آخر
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.5
 
-      - name: Build APK
+      - name: Build with Gradle
         run: |
           cd CipherSMS
-          ./gradlew assembleDebug
+          chmod +x gradlew
+          ./gradlew assembleDebug --no-daemon
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
