@@ -14,6 +14,8 @@ jobs:
       - name: Build with Gradle
         run: |
           cd CipherSMS
+          # هذا السطر سيقوم بتحميل Gradle بشكل صحيح وتجاوز مشكلة الـ Jar
+          gradle wrapper
           chmod +x gradlew
           ./gradlew assembleDebug
 
