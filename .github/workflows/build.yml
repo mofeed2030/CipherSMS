@@ -13,16 +13,18 @@ jobs:
 
       - name: Build APK
         run: |
+          # 1. الدخول للمجلد الصحيح
           cd CipherSMS
-          # الخطوة الأهم: إعطاء صلاحية التنفيذ للمحرك الصحيح
+          
+          # 2. إعطاء صلاحية التنفيذ للمحرك الرئيسي (وليس الـ jar)
           chmod +x gradlew
           
-          # تنظيف الصور (الضروري لتجنب الفشل السابق)
+          # 3. تنظيف الصور (الخطوة التي نجحت سابقاً)
           find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
           
-          # التشغيل الصحيح باستخدام السكريبت المخصص للبناء
+          # 4. الأمر الصحيح والوحيد للبناء
           ./gradlew assembleDebug --no-daemon             -Pkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi
             
       - name: Upload APK
