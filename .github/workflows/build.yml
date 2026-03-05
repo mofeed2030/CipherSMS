@@ -12,19 +12,20 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      # هذه الخطوة تجلب المحرك 8.7 للسيرفر وتنهي مشكلة الإصدار القديم
+      - name: Setup Gradle 8.7
+        uses: gradle/actions/setup-gradle@v3
+        with:
+          gradle-version: 8.7
+
       - name: Build APK
         run: |
-          # إصلاح الكود تلقائياً
+          # إصلاح كود الشاشة تلقائياً
           sed -i '/private fun MessageBubble/i \    @optIn(androidx.compose.foundation.ExperimentalFoundationApi::class)' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
           
-          # تثبيت Gradle مع التأكيد التلقائي لتجاوز التوقف
-          sudo apt-get update
-          sudo apt-get install -y gradle
-          
-          # توليد الـ Wrapper وبدء البناء
-          gradle wrapper --gradle-version 8.7
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          # البناء مباشرة باستخدام النسخة المثبتة
+          chmod +x gradlew || true
+          gradle assembleDebug --no-daemon
             
       - name: Upload APK
         uses: actions/upload-artifact@v4
