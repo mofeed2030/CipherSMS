@@ -10,15 +10,17 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Build APK (Auto-Generate Wrapper)
+
+      - name: Build APK
         run: |
-          # إصلاح كود Kotlin
+          # إصلاح الكود تلقائياً
           sed -i '/private fun MessageBubble/i \    @optIn(androidx.compose.foundation.ExperimentalFoundationApi::class)' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
           
-          # توليد الـ Wrapper داخل السيرفر مباشرة لتجاوز مشاكل جهازك المحلي
-          gradle wrapper --gradle-version 8.5
+          # إجبار السيرفر على استخدام Gradle 8.7 المتوافق
+          gradle wrapper --gradle-version 8.7
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
+            
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
