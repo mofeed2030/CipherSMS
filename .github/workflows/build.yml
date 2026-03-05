@@ -15,21 +15,21 @@ jobs:
         run: |
           cd CipherSMS
           
-          # حذف أي ملفات قديمة نهائياً
+          # استبدال المحرك التالف بالمحرك الرسمي 8.5 (حلك الذكي)
           rm -rf gradle/wrapper
           mkdir -p gradle/wrapper
+          curl -L https://services.gradle.org/distributions/gradle-8.5-bin.zip -o gradle-8.5-bin.zip
+          unzip -j gradle-8.5-bin.zip "gradle-8.5/lib/gradle-wrapper-8.5.jar" -d gradle/wrapper/ || unzip -j gradle-8.5-bin.zip "*/gradle-wrapper.jar" -d gradle/wrapper/
+          mv gradle/wrapper/gradle-wrapper*.jar gradle/wrapper/gradle-wrapper.jar
           
-          # تحميل المحرك (النسخة 8.5) يدوياً لضمان عدم استخدام 9.3.1
-          curl -L https://raw.githubusercontent.com/gradle/gradle/v8.5.0/gradle/wrapper/gradle-wrapper.jar -o gradle/wrapper/gradle-wrapper.jar
-          
-          # إنشاء ملف الخصائص يدوياً
+          # تحديث الخصائص
           echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
           echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
           echo "zipStoreBase=GRADLE_USER_HOME" >> gradle/wrapper/gradle-wrapper.properties
           echo "zipStorePath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
           echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-bin.zip" >> gradle/wrapper/gradle-wrapper.properties
           
-          # إعطاء صلاحية التشغيل
+          rm gradle-8.5-bin.zip
           chmod +x gradlew
           
           # تنظيف الصور
@@ -37,7 +37,7 @@ jobs:
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
           
-          # البناء باستخدام المحرك الذي فرضناه فرضاً
+          # البناء النهائي
           ./gradlew assembleDebug --no-daemon             -Pkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi
             
       - name: Upload APK
