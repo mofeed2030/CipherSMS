@@ -19,16 +19,16 @@ jobs:
       - name: Auto-Fix Code and Build
         run: |
           cd CipherSMS
-          # 1. تنظيف الصور كما فعلنا سابقاً
+          # 1. تنظيف الصور
           find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
           
-          # 2. إضافة استيراد المكتبة في بداية الملف
-          sed -i '1i import androidx.compose.foundation.ExperimentalFoundationApi' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
+          # 2. إضافة المكتبة بعد سطر الـ package (المكان الصحيح برمجياً)
+          sed -i '/package /a import androidx.compose.foundation.ExperimentalFoundationApi' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
           
-          # 3. إجبار النظام على تجاهل أخطاء الـ OptIn في كل المشروع
-          gradle assembleDebug --no-daemon             -Pandroid.builder.sdkDownload=true             -Pkotlin.allwarningsaserrors=false             -Dkotlin.opts="-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi"
+          # 3. بناء التطبيق مع تجاهل التحذيرات وقبول الميزات التجريبية
+          gradle assembleDebug --no-daemon             -Pandroid.builder.sdkDownload=true             -Pkotlin.allwarningsaserrors=false             -Pkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
