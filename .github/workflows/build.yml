@@ -17,14 +17,9 @@ jobs:
         with:
           gradle-version: 8.5
 
-      - name: Update SDK & Build Tools
-        run: |
-          sudo sdkmanager "build-tools;34.0.0" "platforms;android-34"
-
       - name: Fix Vector Assets
         run: |
           cd CipherSMS
-          # تنظيف خصائص الـ XML المؤقت لتجاوز مشاكل الربط
           find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
@@ -32,8 +27,8 @@ jobs:
       - name: Build APK
         run: |
           cd CipherSMS
-          # استخدام Gradle النظيفة وليس wrapper التالف
-          gradle assembleDebug --no-daemon
+          # الأمر أدناه يخبر جاردل بتحميل الـ SDK الناقص تلقائياً
+          gradle assembleDebug --no-daemon -Pandroid.builder.sdkDownload=true
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
