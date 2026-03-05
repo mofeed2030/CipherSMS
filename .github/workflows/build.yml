@@ -15,27 +15,23 @@ jobs:
         run: |
           cd CipherSMS
           
-          # 1. إعطاء صلاحية التنفيذ للمحرك الموجود أصلاً في مشروعك
+          # 1. حذف الملفات التالفة نهائياً
+          rm -f gradle/wrapper/gradle-wrapper.jar
+          rm -f gradlew
+          
+          # 2. إجبار النظام على توليد Wrapper جديد وسليم 100%
+          gradle wrapper --gradle-version 8.5
           chmod +x gradlew
           
-          # 2. التأكد من أن ملف الخصائص يشير لنسخة مستقرة (8.5) لتجنب قفزة النسخة 9
-          mkdir -p gradle/wrapper
-          echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
-          echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
-          echo "zipStoreBase=GRADLE_USER_HOME" >> gradle/wrapper/gradle-wrapper.properties
-          echo "zipStorePath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
-          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-bin.zip" >> gradle/wrapper/gradle-wrapper.properties
-
-          # 3. إصلاح كود Kotlin (إضافة الـ OptIn المفقود تلقائياً في ChatScreen)
-          # نستخدم نفس المسار الذي تسبب في الخطأ سابقاً
+          # 3. إصلاح كود Kotlin (إضافة الـ OptIn المفقود في ChatScreen)
           sed -i '/private fun MessageBubble/i \    @optIn(androidx.compose.foundation.ExperimentalFoundationApi::class)' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
           
-          # 4. تنظيف الصور (الروتين الذي يمنع فشل الرسوم)
+          # 4. تنظيف الصور (الروتين المعتاد)
           find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
 
-          # 5. البناء النهائي باستخدام المحرك المحلي
+          # 5. البناء النهائي
           ./gradlew assembleDebug --no-daemon
             
       - name: Upload APK
