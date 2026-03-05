@@ -17,21 +17,38 @@ jobs:
         with:
           gradle-version: 8.7
 
-      - name: Precise Fix and Build
+      - name: Smart Fix and Build
         run: |
           FILE="app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt"
           
-          # أولاً: تنظيف أي محاولات فاشلة سابقة لسطر الاستيراد
-          sed -i '/import androidx.compose.foundation.ExperimentalFoundationApi/d' $FILE
+          # تنظيف أي محاولات سابقة وتصحيح الكود باستخدام بايثون لضمان الدقة
+          python3 -c "
+          import os
+          path = '$FILE'
+          with open(path, 'r') as f:
+              lines = f.readlines()
           
-          # ثانياً: إضافة الاستيراد في السطر الثاني (بعد الـ package مباشرة) بطريقة صحيحة
-          sed -i '1a import androidx.compose.foundation.ExperimentalFoundationApi' $FILE
+          # حذف أي أسطر استيراد مكررة أو خاطئة في البداية
+          lines = [l for l in lines if 'import androidx.compose.foundation.ExperimentalFoundationApi' not in l]
           
-          # ثالثاً: تصحيح الـ OptIn لتكون بالحرف الكبير وإضافة المسار الكامل للضمان
-          sed -i 's/@optIn/@OptIn/g' $FILE
-          sed -i 's/ExperimentalFoundationApi::class/androidx.compose.foundation.ExperimentalFoundationApi::class/g' $FILE
+          # إضافة الاستيراد بعد سطر الـ package مباشرة
+          for i, line in enumerate(lines):
+              if line.startswith('package '):
+                  lines.insert(i + 1, 'import androidx.compose.foundation.ExperimentalFoundationApi\n')
+                  break
           
-          # رابعاً: إصلاح الأيقونات (الترجمة التي نجحت سابقاً)
+          # إضافة الـ OptIn فوق الـ MessageBubble مباشرة
+          new_lines = []
+          for line in lines:
+              if 'private fun MessageBubble' in line and '@OptIn' not in new_lines[-1]:
+                  new_lines.append('    @OptIn(ExperimentalFoundationApi::class)\n')
+              new_lines.append(line.replace('@optIn', '@OptIn'))
+          
+          with open(path, 'w') as f:
+              f.writelines(new_lines)
+          "
+          
+          # إصلاح الأيقونات (الذي نجح سابقاً)
           sed -i 's/android:cx/android:centerX/g' app/src/main/res/drawable/ic_cipher_logo.xml
           sed -i 's/android:cy/android:centerY/g' app/src/main/res/drawable/ic_cipher_logo.xml
           sed -i 's/android:r/android:gradientRadius/g' app/src/main/res/drawable/ic_cipher_logo.xml
