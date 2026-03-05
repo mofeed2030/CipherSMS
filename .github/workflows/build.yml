@@ -15,29 +15,22 @@ jobs:
         run: |
           cd CipherSMS
           
-          # استبدال المحرك التالف بالمحرك الرسمي 8.5 (حلك الذكي)
-          rm -rf gradle/wrapper
-          mkdir -p gradle/wrapper
+          # 1. تحميل نسخة Gradle الرسمية
           curl -L https://services.gradle.org/distributions/gradle-8.5-bin.zip -o gradle-8.5-bin.zip
-          unzip -j gradle-8.5-bin.zip "gradle-8.5/lib/gradle-wrapper-8.5.jar" -d gradle/wrapper/ || unzip -j gradle-8.5-bin.zip "*/gradle-wrapper.jar" -d gradle/wrapper/
-          mv gradle/wrapper/gradle-wrapper*.jar gradle/wrapper/gradle-wrapper.jar
           
-          # تحديث الخصائص
-          echo "distributionBase=GRADLE_USER_HOME" > gradle/wrapper/gradle-wrapper.properties
-          echo "distributionPath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
-          echo "zipStoreBase=GRADLE_USER_HOME" >> gradle/wrapper/gradle-wrapper.properties
-          echo "zipStorePath=wrapper/dists" >> gradle/wrapper/gradle-wrapper.properties
-          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-bin.zip" >> gradle/wrapper/gradle-wrapper.properties
+          # 2. فك الضغط بالكامل (لتجنب خطأ filename not matched)
+          unzip -q gradle-8.5-bin.zip
           
-          rm gradle-8.5-bin.zip
-          chmod +x gradlew
+          # 3. استخدام النسخة التي حملناها لتوليد الـ wrapper الخاص بمشروعك
+          ./gradle-8.5/bin/gradle wrapper --gradle-version 8.5
           
-          # تنظيف الصور
+          # 4. تنظيف الصور
           find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
           
-          # البناء النهائي
+          # 5. إعطاء الصلاحية والبدء بالبناء
+          chmod +x gradlew
           ./gradlew assembleDebug --no-daemon             -Pkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi
             
       - name: Upload APK
