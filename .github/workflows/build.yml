@@ -13,17 +13,15 @@ jobs:
 
       - name: Build APK
         run: |
-          # الدخول للمجلد
           cd CipherSMS
           
-          # حذف أي ملفات قديمة للمحرك قد تكون "تالفة"
+          # مسح المحرك "المستقبلي" المسبب للمشاكل
           rm -f gradlew gradlew.bat
           rm -rf gradle/wrapper
           
-          # أمر سحري: يطلب من Gradle تنصيب محرك جديد وسليم تماماً
+          # تثبيت نسخة 8.5 (التي تدعم Java 17 ومشروعك بشكل ممتاز)
           gradle wrapper --gradle-version 8.5
           
-          # إعطاء صلاحية التشغيل
           chmod +x gradlew
           
           # تنظيف الصور
@@ -31,7 +29,7 @@ jobs:
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
           
-          # البناء النهائي
+          # البناء مع تجاوز التحذيرات التجريبية
           ./gradlew assembleDebug --no-daemon             -Pkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi
             
       - name: Upload APK
