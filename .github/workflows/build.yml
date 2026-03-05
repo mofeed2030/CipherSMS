@@ -15,9 +15,17 @@ jobs:
         with:
           gradle-version: 8.7
 
-      - name: Inject Logic to Buttons
+      - name: Fix Icons and Inject Logic
         run: |
-          # سنستخدم بايثون لإنشاء ملف منطق الإعدادات الذي يربط الـ 28 زرًا
+          # أولاً: إصلاح أخطاء الأيقونات (التي سببت الفشل الآن)
+          sed -i 's/android:cx/android:centerX/g' app/src/main/res/drawable/ic_cipher_logo.xml
+          sed -i 's/android:cy/android:centerY/g' app/src/main/res/drawable/ic_cipher_logo.xml
+          sed -i 's/android:r/android:gradientRadius/g' app/src/main/res/drawable/ic_cipher_logo.xml
+          sed -i 's/android:cx/android:centerX/g' app/src/main/res/drawable/ic_launcher_foreground.xml
+          sed -i 's/android:cy/android:centerY/g' app/src/main/res/drawable/ic_launcher_foreground.xml
+          sed -i 's/android:r/android:gradientRadius/g' app/src/main/res/drawable/ic_launcher_foreground.xml
+
+          # ثانياً: ربط منطق الأزرار الـ 28
           python3 -c "
           import os
           dir_path = 'app/src/main/java/com/ciphersms/app/presentation/ui/settings'
@@ -28,12 +36,9 @@ jobs:
           import androidx.lifecycle.ViewModel
 
           class SettingsViewModel : ViewModel() {
-              // ربط أزرار الصورة 1000270188
               var isAppLockEnabled by mutableStateOf(false)
               var isEncryptionEnabled by mutableStateOf(true)
               var isScreenshotProtectionEnabled by mutableStateOf(false)
-              
-              // ربط أزرار الصورة 1000270189
               var isReadReceiptsEnabled by mutableStateOf(true)
               var isTypingIndicatorsEnabled by mutableStateOf(true)
               var isSmartRepliesEnabled by mutableStateOf(true)
@@ -51,12 +56,12 @@ jobs:
               }
           }''')
           "
-          # بناء التطبيق مع المنطق الجديد
+          # بناء التطبيق
           chmod +x gradlew || true
-          gradle assembleDebug --no-daemon
+          ./gradlew assembleDebug --no-daemon
             
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: CipherSMS-Working-Buttons
+          name: CipherSMS-Final-Build
           path: "app/build/outputs/apk/debug/*.apk"
