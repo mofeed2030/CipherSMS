@@ -13,22 +13,29 @@ jobs:
 
       - name: Build APK
         run: |
-          # 1. الدخول للمجلد الصحيح
+          # الدخول للمجلد
           cd CipherSMS
           
-          # 2. إعطاء صلاحية التنفيذ للمحرك الرئيسي (وليس الـ jar)
+          # حذف أي ملفات قديمة للمحرك قد تكون "تالفة"
+          rm -f gradlew gradlew.bat
+          rm -rf gradle/wrapper
+          
+          # أمر سحري: يطلب من Gradle تنصيب محرك جديد وسليم تماماً
+          gradle wrapper --gradle-version 8.5
+          
+          # إعطاء صلاحية التشغيل
           chmod +x gradlew
           
-          # 3. تنظيف الصور (الخطوة التي نجحت سابقاً)
+          # تنظيف الصور
           find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
           
-          # 4. الأمر الصحيح والوحيد للبناء
+          # البناء النهائي
           ./gradlew assembleDebug --no-daemon             -Pkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi
             
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: CipherSMS-APK
-          path: CipherSMS/app/build/outputs/apk/debug/*.apk
+          path: "**/build/outputs/apk/debug/*.apk"
