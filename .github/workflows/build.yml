@@ -10,30 +10,10 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-
       - name: Build APK
         run: |
-          cd CipherSMS
-          
-          # 1. حذف الملفات التالفة نهائياً
-          rm -f gradle/wrapper/gradle-wrapper.jar
-          rm -f gradlew
-          
-          # 2. إجبار النظام على توليد Wrapper جديد وسليم 100%
-          gradle wrapper --gradle-version 8.5
           chmod +x gradlew
-          
-          # 3. إصلاح كود Kotlin (إضافة الـ OptIn المفقود في ChatScreen)
-          sed -i '/private fun MessageBubble/i \    @optIn(androidx.compose.foundation.ExperimentalFoundationApi::class)' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
-          
-          # 4. تنظيف الصور (الروتين المعتاد)
-          find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
-          find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
-          find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
-
-          # 5. البناء النهائي
           ./gradlew assembleDebug --no-daemon
-            
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
