@@ -5,23 +5,27 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
+      # هذه الخطوة هي التي ستجبر السيرفر على استخدام 8.7 بدلاً من 9.3
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: 8.7
+
       - name: Build APK
         run: |
-          # إصلاح كود Kotlin (الحقن التلقائي)
+          # إصلاح كود الشاشة تلقائياً
           sed -i '/private fun MessageBubble/i \    @optIn(androidx.compose.foundation.ExperimentalFoundationApi::class)' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
           
-          # إجبار السيرفر على توليد واستخدام Gradle 8.7 حصراً
-          gradle wrapper --gradle-version 8.7
+          # البناء باستخدام النسخة التي ثبتناها
           chmod +x gradlew
-          
-          # تشغيل البناء مع تعطيل التحذيرات التي تسبب توقف النسخ الجديدة
-          ./gradlew assembleDebug --no-daemon -Pandroid.defaults.buildfeatures.buildconfig=true
+          ./gradlew assembleDebug --no-daemon
             
       - name: Upload APK
         uses: actions/upload-artifact@v4
