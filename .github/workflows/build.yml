@@ -14,24 +14,20 @@ jobs:
       - name: Build APK
         run: |
           cd CipherSMS
-          
-          # 1. تحميل نسخة Gradle الرسمية
-          curl -L https://services.gradle.org/distributions/gradle-8.5-bin.zip -o gradle-8.5-bin.zip
-          
-          # 2. فك الضغط بالكامل (لتجنب خطأ filename not matched)
-          unzip -q gradle-8.5-bin.zip
-          
-          # 3. استخدام النسخة التي حملناها لتوليد الـ wrapper الخاص بمشروعك
-          ./gradle-8.5/bin/gradle wrapper --gradle-version 8.5
-          
-          # 4. تنظيف الصور
+          # استخدام المحرك الذي ثبتناه بنجاح في الخطوة السابقة
+          curl -L https://services.gradle.org/distributions/gradle-8.5-all.zip -o gradle-8.5-all.zip
+          mkdir -p gradle/wrapper
+          unzip -j gradle-8.5-all.zip "*/gradle-wrapper.jar" -d gradle/wrapper/
+          echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-all.zip" > gradle/wrapper/gradle-wrapper.properties
+          chmod +x gradlew
+
+          # تنظيف الصور
           find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
-          
-          # 5. إعطاء الصلاحية والبدء بالبناء
-          chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon             -Pkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi
+
+          # أمر البناء مع فرض السماح للميزات التجريبية (حل الخطأ الأخير)
+          ./gradlew assembleDebug --no-daemon             -Pkotlin.compiler.options.allWarningsAsErrors=false             -Dkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi             -Dkotlin.optIn=androidx.compose.material3.ExperimentalMaterial3Api
             
       - name: Upload APK
         uses: actions/upload-artifact@v4
