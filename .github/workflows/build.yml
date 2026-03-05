@@ -17,24 +17,29 @@ jobs:
         with:
           gradle-version: 8.7
 
-      - name: Final Fix and Build
+      - name: Precise Fix and Build
         run: |
-          # إصلاح كود الشاشة (إضافة الاستيراد وتصحيح الحرف الكبير)
           FILE="app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt"
-          sed -i '1i import androidx.compose.foundation.ExperimentalFoundationApi' $FILE
+          
+          # أولاً: تنظيف أي محاولات فاشلة سابقة لسطر الاستيراد
+          sed -i '/import androidx.compose.foundation.ExperimentalFoundationApi/d' $FILE
+          
+          # ثانياً: إضافة الاستيراد في السطر الثاني (بعد الـ package مباشرة) بطريقة صحيحة
+          sed -i '1a import androidx.compose.foundation.ExperimentalFoundationApi' $FILE
+          
+          # ثالثاً: تصحيح الـ OptIn لتكون بالحرف الكبير وإضافة المسار الكامل للضمان
           sed -i 's/@optIn/@OptIn/g' $FILE
           sed -i 's/ExperimentalFoundationApi::class/androidx.compose.foundation.ExperimentalFoundationApi::class/g' $FILE
           
-          # إصلاح الأيقونات (الترجمة الصحيحة كما فعلنا سابقاً)
+          # رابعاً: إصلاح الأيقونات (الترجمة التي نجحت سابقاً)
           sed -i 's/android:cx/android:centerX/g' app/src/main/res/drawable/ic_cipher_logo.xml
           sed -i 's/android:cy/android:centerY/g' app/src/main/res/drawable/ic_cipher_logo.xml
           sed -i 's/android:r/android:gradientRadius/g' app/src/main/res/drawable/ic_cipher_logo.xml
-          
           sed -i 's/android:cx/android:centerX/g' app/src/main/res/drawable/ic_launcher_foreground.xml
           sed -i 's/android:cy/android:centerY/g' app/src/main/res/drawable/ic_launcher_foreground.xml
           sed -i 's/android:r/android:gradientRadius/g' app/src/main/res/drawable/ic_launcher_foreground.xml
           
-          # البناء النهائي
+          # البناء
           chmod +x gradlew || true
           gradle assembleDebug --no-daemon
             
