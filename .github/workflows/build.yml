@@ -11,22 +11,20 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Setup Gradle 8.5
-        uses: gradle/gradle-build-action@v3
-        with:
-          gradle-version: 8.5
-
       - name: Build APK
         run: |
           cd CipherSMS
-          # تنظيف الصور (الضروري للنجاح)
+          # إصلاح أذونات المحرك (خطوة حاسمة)
+          chmod +x gradlew
+          
+          # تنظيف الصور
           find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
           
-          # بناء التطبيق مع إعطاء "جواز المرور" للميزات التجريبية
+          # تشغيل البناء باستخدام المحرك المحلي gradlew
           ./gradlew assembleDebug --no-daemon             -Pkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi
-
+            
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
