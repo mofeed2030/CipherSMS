@@ -10,15 +10,13 @@ jobs:
         with:
           java-version: '17'
           distribution: 'temurin'
-      - name: Build APK
+      - name: Build APK (Auto-Generate Wrapper)
         run: |
-          # إصلاح الكود المفقود تلقائياً
+          # إصلاح كود Kotlin
           sed -i '/private fun MessageBubble/i \    @optIn(androidx.compose.foundation.ExperimentalFoundationApi::class)' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
-          # تنظيف الصور
-          find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
-          find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
-          find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
-          # تشغيل البناء
+          
+          # توليد الـ Wrapper داخل السيرفر مباشرة لتجاوز مشاكل جهازك المحلي
+          gradle wrapper --gradle-version 8.5
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
       - name: Upload APK
