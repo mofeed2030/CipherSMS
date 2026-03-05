@@ -13,13 +13,15 @@ jobs:
 
       - name: Build APK
         run: |
-          # إصلاح الكود تلقائياً
+          # إصلاح كود Kotlin (الحقن التلقائي)
           sed -i '/private fun MessageBubble/i \    @optIn(androidx.compose.foundation.ExperimentalFoundationApi::class)' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
           
-          # إجبار السيرفر على استخدام Gradle 8.7 المتوافق
+          # إجبار السيرفر على توليد واستخدام Gradle 8.7 حصراً
           gradle wrapper --gradle-version 8.7
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          
+          # تشغيل البناء مع تعطيل التحذيرات التي تسبب توقف النسخ الجديدة
+          ./gradlew assembleDebug --no-daemon -Pandroid.defaults.buildfeatures.buildconfig=true
             
       - name: Upload APK
         uses: actions/upload-artifact@v4
