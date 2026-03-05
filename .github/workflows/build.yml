@@ -16,22 +16,15 @@ jobs:
         with:
           gradle-version: 8.5
 
-      - name: Auto-Fix Code and Build
+      - name: Build APK
         run: |
           cd CipherSMS
-          # 1. تنظيف الصور
+          # تنظيف الصور
           find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
           
-          # 2. إضافة المكتبة بعد سطر الـ package (المكان الصحيح برمجياً)
-          sed -i '/package /a import androidx.compose.foundation.ExperimentalFoundationApi' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
+          # الأمر السحري: إجبار المترجم على قبول الميزات التجريبية في كل المشروع
+          export GRADLE_OPTS="-Dorg.gradle.project.kotlin.options.freeCompilerArgs=-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"
           
-          # 3. بناء التطبيق مع تجاهل التحذيرات وقبول الميزات التجريبية
-          gradle assembleDebug --no-daemon             -Pandroid.builder.sdkDownload=true             -Pkotlin.allwarningsaserrors=false             -Pkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi
-
-      - name: Upload APK
-        uses: actions/upload-artifact@v4
-        with:
-          name: CipherSMS-APK
-          path: CipherSMS/app/build/outputs/apk/debug/*.apk
+          gradle assembleDebug --no-daemon             -Pandroid.builder.sdkDownload=true             -Pkotlin.allwarningsaserrors=false
