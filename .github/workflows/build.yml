@@ -22,20 +22,27 @@ jobs:
           sed -i 's/android:cy/android:centerY/g' app/src/main/res/drawable/*.xml || true
           sed -i 's/android:r/android:gradientRadius/g' app/src/main/res/drawable/*.xml || true
 
-          # إصلاح خطأ الـ Experimental API في ملف الدردشة (السطر 352)
-          # سنضيف @OptIn في أعلى الملف ليتجاوز الكومبايلر هذا الخطأ
+          # تنظيف ملف الدردشة وحقن الـ OptIn بشكل صحيح
           python3 -c "
           file_path = 'app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt'
           with open(file_path, 'r') as f:
-              content = f.read()
-          if 'androidx.compose.foundation.ExperimentalFoundationApi' not in content:
-              import_text = 'import androidx.compose.foundation.ExperimentalFoundationApi'
-              content = content.replace('package com.ciphersms.app', f'{import_text}\npackage com.ciphersms.app')
+              lines = f.readlines()
+          
+          # إزالة أي أسطر استيراد تائهة في أول الملف نتجت عن المحاولة السابقة
+          clean_lines = [l for l in lines if 'import androidx.compose.foundation.ExperimentalFoundationApi' not in l]
+          
+          new_content = []
+          for line in clean_lines:
+              new_content.append(line)
+              # وضع الاستيراد فوراً بعد سطر الـ package لضمان صحة الملف
+              if line.startswith('package '):
+                  new_content.append('import androidx.compose.foundation.ExperimentalFoundationApi\n')
+          
           with open(file_path, 'w') as f:
-              f.write(content)
+              f.writelines(new_content)
           "
 
-          # إعادة إنشاء منطق الأزرار الـ 28
+          # ربط منطق الأزرار الـ 28
           python3 -c "
           import os
           dir_path = 'app/src/main/java/com/ciphersms/app/presentation/ui/settings'
@@ -57,11 +64,11 @@ jobs:
           }''')
           "
 
-          # البناء النهائي
+          # البناء
           gradle assembleDebug --no-daemon
             
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: CipherSMS-Fixed-Final
+          name: CipherSMS-Final-Corrected
           path: "app/build/outputs/apk/debug/*.apk"
