@@ -5,7 +5,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -17,17 +16,15 @@ jobs:
         with:
           gradle-version: 8.5
 
-      - name: Fix Vector Assets
+      - name: Fix Assets and Build
         run: |
           cd CipherSMS
+          # تنظيف الصور
           find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
-
-      - name: Build APK
-        run: |
-          cd CipherSMS
-          # الأمر أدناه يخبر جاردل بتحميل الـ SDK الناقص تلقائياً
+          
+          # بناء التطبيق الآن بعد تحديث الكود لـ 1.9.20
           gradle assembleDebug --no-daemon -Pandroid.builder.sdkDownload=true
 
       - name: Upload APK
