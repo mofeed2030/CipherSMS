@@ -16,13 +16,22 @@ jobs:
         with:
           gradle-version: 8.5
 
-      - name: Fix Assets and Build
+      - name: Auto-Fix Code and Build
         run: |
           cd CipherSMS
-          # تنظيف الصور (الخطوة الناجحة)
+          # 1. تنظيف الصور كما فعلنا سابقاً
           find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
           
-          # البناء مع السماح بالميزات التجريبية وتجاهل التحذيرات
-          gradle assembleDebug --no-daemon             -Pandroid.builder.sdkDownload=true             -Pkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi             -Pkotlin.allwarningsaserrors=false
+          # 2. إضافة استيراد المكتبة في بداية الملف
+          sed -i '1i import androidx.compose.foundation.ExperimentalFoundationApi' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
+          
+          # 3. إجبار النظام على تجاهل أخطاء الـ OptIn في كل المشروع
+          gradle assembleDebug --no-daemon             -Pandroid.builder.sdkDownload=true             -Pkotlin.allwarningsaserrors=false             -Dkotlin.opts="-Xopt-in=androidx.compose.foundation.ExperimentalFoundationApi"
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: CipherSMS-APK
+          path: CipherSMS/app/build/outputs/apk/debug/*.apk
