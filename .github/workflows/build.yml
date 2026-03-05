@@ -5,16 +5,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      
       - name: set up JDK 17
         uses: actions/setup-java@v4
         with:
           java-version: '17'
           distribution: 'temurin'
 
+      # هذه هي الخطوة السحرية التي ستنهي المشكلة
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v3
+        with:
+          gradle-version: 8.5
+
       - name: Build APK
         run: |
           cd CipherSMS
-          rm -rf gradle/wrapper
+          # سنبني التطبيق باستخدام النسخة التي ثبتناها للتو
           gradle assembleDebug --no-daemon
 
       - name: Upload APK
