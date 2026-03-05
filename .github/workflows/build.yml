@@ -15,34 +15,17 @@ jobs:
         with:
           gradle-version: 8.7
 
-      - name: Surgical Fix and Build
+      - name: Force Build and Fix Logic
         run: |
           # إصلاح الأيقونات
           sed -i 's/android:cx/android:centerX/g' app/src/main/res/drawable/*.xml || true
           sed -i 's/android:cy/android:centerY/g' app/src/main/res/drawable/*.xml || true
           sed -i 's/android:r/android:gradientRadius/g' app/src/main/res/drawable/*.xml || true
 
-          # تنظيف ملف الدردشة وحقن الـ OptIn بشكل صحيح
-          python3 -c "
-          file_path = 'app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt'
-          with open(file_path, 'r') as f:
-              lines = f.readlines()
-          
-          # إزالة أي أسطر استيراد تائهة في أول الملف نتجت عن المحاولة السابقة
-          clean_lines = [l for l in lines if 'import androidx.compose.foundation.ExperimentalFoundationApi' not in l]
-          
-          new_content = []
-          for line in clean_lines:
-              new_content.append(line)
-              # وضع الاستيراد فوراً بعد سطر الـ package لضمان صحة الملف
-              if line.startswith('package '):
-                  new_content.append('import androidx.compose.foundation.ExperimentalFoundationApi\n')
-          
-          with open(file_path, 'w') as f:
-              f.writelines(new_content)
-          "
+          # إضافة إذن التجاهل في ملف build.gradle ليتوقف عن الاعتراض على السطر 353
+          sed -i '/kotlinOptions {/a \        freeCompilerArgs += ["-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"]' app/build.gradle
 
-          # ربط منطق الأزرار الـ 28
+          # إعادة إنشاء منطق الأزرار الـ 28 لضمان عملها
           python3 -c "
           import os
           dir_path = 'app/src/main/java/com/ciphersms/app/presentation/ui/settings'
@@ -64,11 +47,11 @@ jobs:
           }''')
           "
 
-          # البناء
+          # البناء النهائي
           gradle assembleDebug --no-daemon
             
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: CipherSMS-Final-Corrected
+          name: CipherSMS-Total-Working
           path: "app/build/outputs/apk/debug/*.apk"
