@@ -19,10 +19,10 @@ jobs:
       - name: Fix Assets and Build
         run: |
           cd CipherSMS
-          # تنظيف الصور (الخطوة الناجحة دائماً)
+          # تنظيف الصور (الخطوة الناجحة)
           find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
           
-          # البناء مع السماح بالميزات التجريبية وتجاهل أخطاء التوافق
-          gradle assembleDebug --no-daemon             -Pandroid.builder.sdkDownload=true             -Pkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi
+          # البناء مع السماح بالميزات التجريبية وتجاهل التحذيرات
+          gradle assembleDebug --no-daemon             -Pandroid.builder.sdkDownload=true             -Pkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi             -Pkotlin.allwarningsaserrors=false
