@@ -12,18 +12,27 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      # هذه الخطوة تجلب المحرك 8.7 للسيرفر وتنهي مشكلة الإصدار القديم
       - name: Setup Gradle 8.7
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: 8.7
 
-      - name: Build APK
+      - name: Fix and Build
         run: |
-          # إصلاح كود الشاشة تلقائياً
+          # إصلاح كود الشاشة
           sed -i '/private fun MessageBubble/i \    @optIn(androidx.compose.foundation.ExperimentalFoundationApi::class)' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
           
-          # البناء مباشرة باستخدام النسخة المثبتة
+          # إصلاح الأيقونات بالاستبدال (تحويل لغة SVG إلى لغة أندرويد)
+          # استبدال cx بـ centerX و cy بـ centerY و r بـ gradientRadius
+          sed -i 's/android:cx/android:centerX/g' app/src/main/res/drawable/ic_cipher_logo.xml
+          sed -i 's/android:cy/android:centerY/g' app/src/main/res/drawable/ic_cipher_logo.xml
+          sed -i 's/android:r/android:gradientRadius/g' app/src/main/res/drawable/ic_cipher_logo.xml
+          
+          sed -i 's/android:cx/android:centerX/g' app/src/main/res/drawable/ic_launcher_foreground.xml
+          sed -i 's/android:cy/android:centerY/g' app/src/main/res/drawable/ic_launcher_foreground.xml
+          sed -i 's/android:r/android:gradientRadius/g' app/src/main/res/drawable/ic_launcher_foreground.xml
+          
+          # البناء النهائي
           chmod +x gradlew || true
           gradle assembleDebug --no-daemon
             
