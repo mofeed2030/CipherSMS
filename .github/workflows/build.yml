@@ -17,13 +17,15 @@ jobs:
         with:
           gradle-version: 8.7
 
-      - name: Fix and Build
+      - name: Final Fix and Build
         run: |
-          # إصلاح كود الشاشة
-          sed -i '/private fun MessageBubble/i \    @optIn(androidx.compose.foundation.ExperimentalFoundationApi::class)' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
+          # إصلاح كود الشاشة (إضافة الاستيراد وتصحيح الحرف الكبير)
+          FILE="app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt"
+          sed -i '1i import androidx.compose.foundation.ExperimentalFoundationApi' $FILE
+          sed -i 's/@optIn/@OptIn/g' $FILE
+          sed -i 's/ExperimentalFoundationApi::class/androidx.compose.foundation.ExperimentalFoundationApi::class/g' $FILE
           
-          # إصلاح الأيقونات بالاستبدال (تحويل لغة SVG إلى لغة أندرويد)
-          # استبدال cx بـ centerX و cy بـ centerY و r بـ gradientRadius
+          # إصلاح الأيقونات (الترجمة الصحيحة كما فعلنا سابقاً)
           sed -i 's/android:cx/android:centerX/g' app/src/main/res/drawable/ic_cipher_logo.xml
           sed -i 's/android:cy/android:centerY/g' app/src/main/res/drawable/ic_cipher_logo.xml
           sed -i 's/android:r/android:gradientRadius/g' app/src/main/res/drawable/ic_cipher_logo.xml
