@@ -14,20 +14,30 @@ jobs:
       - name: Build APK
         run: |
           cd CipherSMS
-          # استخدام المحرك الذي ثبتناه بنجاح في الخطوة السابقة
+          
+          # 1. تحميل نسخة 'all' الرسمية
           curl -L https://services.gradle.org/distributions/gradle-8.5-all.zip -o gradle-8.5-all.zip
+          
+          # 2. الاستخراج الذكي (البحث عن الملف واستخراجه أينما كان داخل الـ zip)
           mkdir -p gradle/wrapper
-          unzip -j gradle-8.5-all.zip "*/gradle-wrapper.jar" -d gradle/wrapper/
+          SPECIFIC_PATH=$(unzip -l gradle-8.5-all.zip | grep "gradle-wrapper.jar" | awk '{print $4}')
+          unzip -j gradle-8.5-all.zip "$SPECIFIC_PATH" -d gradle/wrapper/
+          
+          # 3. إعداد الخصائص والصلاحيات
           echo "distributionUrl=https\://services.gradle.org/distributions/gradle-8.5-all.zip" > gradle/wrapper/gradle-wrapper.properties
           chmod +x gradlew
+          
+          # 4. إصلاح كود Kotlin (إضافة الـ OptIn المفقود تلقائياً)
+          # هذا السطر يبحث عن الدالة ويضيف فوقها التصريح اللازم ليتجاوز الكومبايلر الخطأ
+          sed -i '/private fun MessageBubble/i \    @androidx.compose.foundation.ExperimentalFoundationApi\n    @optIn(androidx.compose.foundation.ExperimentalFoundationApi::class)' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
 
-          # تنظيف الصور
+          # 5. تنظيف الصور (الروتين المعتاد)
           find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
-
-          # أمر البناء مع فرض السماح للميزات التجريبية (حل الخطأ الأخير)
-          ./gradlew assembleDebug --no-daemon             -Pkotlin.compiler.options.allWarningsAsErrors=false             -Dkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi             -Dkotlin.optIn=androidx.compose.material3.ExperimentalMaterial3Api
+          
+          # 6. البناء النهائي
+          ./gradlew assembleDebug --no-daemon
             
       - name: Upload APK
         uses: actions/upload-artifact@v4
