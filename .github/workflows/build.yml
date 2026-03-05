@@ -17,15 +17,15 @@ jobs:
 
       - name: Fix Icons and Inject Logic
         run: |
-          # أولاً: إصلاح أخطاء الأيقونات (التي سببت الفشل الآن)
-          sed -i 's/android:cx/android:centerX/g' app/src/main/res/drawable/ic_cipher_logo.xml
-          sed -i 's/android:cy/android:centerY/g' app/src/main/res/drawable/ic_cipher_logo.xml
-          sed -i 's/android:r/android:gradientRadius/g' app/src/main/res/drawable/ic_cipher_logo.xml
-          sed -i 's/android:cx/android:centerX/g' app/src/main/res/drawable/ic_launcher_foreground.xml
-          sed -i 's/android:cy/android:centerY/g' app/src/main/res/drawable/ic_launcher_foreground.xml
-          sed -i 's/android:r/android:gradientRadius/g' app/src/main/res/drawable/ic_launcher_foreground.xml
+          # إصلاح الأيقونات (التي تسببت في فشل processDebugResources)
+          sed -i 's/android:cx/android:centerX/g' app/src/main/res/drawable/ic_cipher_logo.xml || true
+          sed -i 's/android:cy/android:centerY/g' app/src/main/res/drawable/ic_cipher_logo.xml || true
+          sed -i 's/android:r/android:gradientRadius/g' app/src/main/res/drawable/ic_cipher_logo.xml || true
+          sed -i 's/android:cx/android:centerX/g' app/src/main/res/drawable/ic_launcher_foreground.xml || true
+          sed -i 's/android:cy/android:centerY/g' app/src/main/res/drawable/ic_launcher_foreground.xml || true
+          sed -i 's/android:r/android:gradientRadius/g' app/src/main/res/drawable/ic_launcher_foreground.xml || true
 
-          # ثانياً: ربط منطق الأزرار الـ 28
+          # ربط منطق الأزرار الـ 28 (Settings Logic)
           python3 -c "
           import os
           dir_path = 'app/src/main/java/com/ciphersms/app/presentation/ui/settings'
@@ -56,12 +56,11 @@ jobs:
               }
           }''')
           "
-          # بناء التطبيق
-          chmod +x gradlew || true
-          ./gradlew assembleDebug --no-daemon
+          # أمر البناء (بدون ./ لضمان العمل)
+          gradle assembleDebug --no-daemon
             
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: CipherSMS-Final-Build
+          name: CipherSMS-Fully-Functional
           path: "app/build/outputs/apk/debug/*.apk"
