@@ -12,10 +12,17 @@ jobs:
           distribution: 'temurin'
       - name: Build APK
         run: |
+          # إصلاح الكود المفقود تلقائياً
+          sed -i '/private fun MessageBubble/i \    @optIn(androidx.compose.foundation.ExperimentalFoundationApi::class)' app/src/main/java/com/ciphersms/app/presentation/ui/chat/ChatScreen.kt
+          # تنظيف الصور
+          find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
+          find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
+          find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
+          # تشغيل البناء
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: CipherSMS-APK
-          path: "**/build/outputs/apk/debug/*.apk"
+          path: "app/build/outputs/apk/debug/*.apk"
