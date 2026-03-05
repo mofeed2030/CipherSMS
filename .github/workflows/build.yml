@@ -19,12 +19,16 @@ jobs:
       - name: Build APK
         run: |
           cd CipherSMS
-          # تنظيف الصور
+          # تنظيف الصور (الضروري للنجاح)
           find . -name "*.xml" -type f -exec sed -i 's/android:cx="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
           
-          # الأمر السحري: إجبار المترجم على قبول الميزات التجريبية في كل المشروع
-          export GRADLE_OPTS="-Dorg.gradle.project.kotlin.options.freeCompilerArgs=-opt-in=androidx.compose.foundation.ExperimentalFoundationApi"
-          
-          gradle assembleDebug --no-daemon             -Pandroid.builder.sdkDownload=true             -Pkotlin.allwarningsaserrors=false
+          # بناء التطبيق مع إعطاء "جواز المرور" للميزات التجريبية
+          ./gradlew assembleDebug --no-daemon             -Pkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: CipherSMS-APK
+          path: CipherSMS/app/build/outputs/apk/debug/*.apk
