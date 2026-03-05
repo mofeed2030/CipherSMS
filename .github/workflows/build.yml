@@ -14,7 +14,7 @@ jobs:
       - name: Build APK
         run: |
           cd CipherSMS
-          # إصلاح أذونات المحرك (خطوة حاسمة)
+          # إعطاء صلاحية التنفيذ للملف الصحيح
           chmod +x gradlew
           
           # تنظيف الصور
@@ -22,7 +22,7 @@ jobs:
           find . -name "*.xml" -type f -exec sed -i 's/android:cy="[^"]*"//g' {} +
           find . -name "*.xml" -type f -exec sed -i 's/android:r="[^"]*"//g' {} +
           
-          # تشغيل البناء باستخدام المحرك المحلي gradlew
+          # تشغيل البناء باستخدام السكريبت وليس الـ jar
           ./gradlew assembleDebug --no-daemon             -Pkotlin.optIn=androidx.compose.foundation.ExperimentalFoundationApi
             
       - name: Upload APK
